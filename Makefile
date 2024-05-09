@@ -1,7 +1,8 @@
 PROJ = led-dynamic-audio-vis
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O
+CFLAGS = -Wall -Wextra -O3
+#-fsanitize=address
 INCLUDE = -I/usr/include/spa-0.2/ -I/usr/include/pipewire-0.3/
 LDFLAGS = -lpipewire-0.3 -lm -pthread
 

@@ -34,10 +34,11 @@ void pw_input_main_loop()
     pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGTERM, quit, &data);
     props = pw_properties_new(PW_KEY_MEDIA_TYPE, "Audio",
                               PW_KEY_CONFIG_NAME, "client-rt.conf",
-                              PW_KEY_MEDIA_CATEGORY, "Monitor",
-                              PW_KEY_MEDIA_ROLE, "DSP",
+                              PW_KEY_MEDIA_CATEGORY, "Capture",
+                              PW_KEY_MEDIA_ROLE, "Music",
                               NULL);
     pw_properties_set(props, PW_KEY_STREAM_CAPTURE_SINK, "true");
+    pw_properties_set(props, PW_KEY_STREAM_MONITOR, "true");
     data.stream = pw_stream_new_simple(
         pw_main_loop_get_loop(data.loop),
         "Capture audio",
