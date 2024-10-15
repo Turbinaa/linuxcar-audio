@@ -2,7 +2,6 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <errno.h>
 #include <signal.h>
 #include <math.h>
 #include <spa/param/audio/format-utils.h>
@@ -13,6 +12,7 @@
 #include "../main.h"
 
 float average;
+pthread_mutex_t mutex;
 static const struct pw_stream_events stream_e = {
     PW_VERSION_STREAM_EVENTS,
     .param_changed = stream_param_changed,
@@ -86,23 +86,20 @@ void process(void *userdata)
     n_channels = data->format.info.raw.channels;
     n_samples = spa_buff->datas[0].chunk->size / sizeof(float);
 
-    // if (data->move)
-    //     fprintf(stdout, "%c[%dA", 0x1b, n_channels + 1);
-    // fprintf(stdout, "Captured %d samples \n", n_samples / n_channels);
-    for (j = 0; j < data->format.info.raw.channels; j++)
-    {
+    if(pthread_mutex_trylock(&mutex) != 0) {
         average = 0.0f;
-        for (n = j; n < n_samples; n += n_channels)
+        for (j = 0; j < n_channels; j++)
         {
-            // average = fmaxf(average, fabsf(samples[n]));
-            average = fabsf(samples[n]);
+            for (n = j; n < n_samples; n += n_channels)
+            {
+                // average = fmaxf(average, fabsf(samples[n]));
+                average += fabsf(samples[n]);
+            }
         }
-        // fprintf(stdout, "channel %d: |%*s%*s| peak:%.3f\n",
-        //         j, peak + 1, "*", 40 - peak, "", max);
-        // fprintf(stdout, "%d %*s%*s peak:%.3f\n",
-        //         j, peak + 1, "*", 40 - peak, "", max);
+        average /= n_samples;
+        average /= n_channels;
+        pthread_mutex_unlock(&mutex);
     }
-    // data->move = true;
     pw_stream_queue_buffer(data->stream, pw_buff);
 }
 

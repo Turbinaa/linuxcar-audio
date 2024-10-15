@@ -1,6 +1,7 @@
 #ifndef PIPEWIRE_INPUT_H
 #define PIPEWIRE_INPUT_H
 
+void process(void *userdata);
 void pw_input_main_loop();
 struct data
 {
@@ -14,5 +15,4 @@ void stream_param_changed(
     uint32_t id,
     const struct spa_pod *param);
 void quit(void *userdata, int sig);
-void process();
 #endif // PIPEWIRE_INPUT_H
