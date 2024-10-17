@@ -3,6 +3,7 @@ import pygame
 import asyncio
 async def handle_input():
     global value
+    value = 0
     loop = asyncio.get_event_loop()
     reader = asyncio.StreamReader(loop=loop)
     reader_protocol = asyncio.StreamReaderProtocol(reader)

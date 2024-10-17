@@ -13,8 +13,9 @@
 
 extern float average;
 extern pthread_mutex_t mutex;
-#define SAMPLE_SIZE 256 // samples per every output - more = more smoothnes
+#define SAMPLES 256
 #define HZ 240
+void meanFilter(float signal[], int size, int window_size);
 void *in_thread(void *arg) {
     pw_input_main_loop();
     pthread_exit(NULL);
@@ -22,32 +23,54 @@ void *in_thread(void *arg) {
 void *out_thread(void *arg)
 {
     int n = 0;
-    u_int print_val = 0;
-    float average_sum = 0.0f;
-    float smooth[SAMPLE_SIZE];
+    float ema_data[SAMPLES];
+    for(int i = 0; i < SAMPLES; i++) {
+    	ema_data[i] = 0.0f;
+    }
     while (1)
     {
-        usleep((int)(1000000 / (SAMPLE_SIZE * HZ))); 
+        usleep((int)(1000000 / ( HZ * SAMPLES))); 
         if(pthread_mutex_trylock(&mutex) != 0) {
             continue;
         }
-        if (n >= SAMPLE_SIZE)
+        if (n >= SAMPLES)
         {
             fflush(stdout);
-            average_sum = 0.0f;
-            for (int i = 0; i < SAMPLE_SIZE; i++)
-            {
-                average_sum += smooth[i];
-            }
-            n = 0;
-            average_sum /= SAMPLE_SIZE;
+			meanFilter(ema_data, SAMPLES, SAMPLES);
+			for (int i = 0; i < SAMPLES; i++) {
+				printf("%d\n", (int)(ema_data[i]*10000));
+        		usleep((int)(1000000 / (HZ * SAMPLES))); 
+			}
+
+        	n = 0;
+
         }
-        printf("%d\n", (int)(average_sum*10000));
-        smooth[n] = average;
+		ema_data[n]=average;
         n++;
         pthread_mutex_unlock(&mutex);
     }
     pthread_exit(NULL);
+}
+
+void meanFilter(float signal[], int size, int window_size) {
+    float filtered_signal[size];
+    
+    for (int i = 0; i < size; i++) {
+        int start = i - window_size / 2;
+        int end = i + window_size / 2;
+        float sum = 0.0f;
+    	int count = 0;
+        for (int j = start; j <= end; j++) {
+            if (j >= 0 && j < size) {
+                sum += signal[j];
+                count++;
+            }
+        }
+        filtered_signal[i] = sum / count;
+    }
+    for (int i = 0; i < size; i++) {
+        signal[i] = filtered_signal[i];
+    }
 }
 
 int main()
