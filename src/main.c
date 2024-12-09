@@ -14,7 +14,7 @@
 extern float average;
 extern pthread_mutex_t mutex;
 #define SAMPLES 256
-#define HZ 240
+#define HZ 500
 void meanFilter(float signal[], int size, int window_size);
 void *in_thread(void *arg) {
     pw_input_main_loop();
