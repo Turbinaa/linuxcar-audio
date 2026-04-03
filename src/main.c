@@ -12,7 +12,7 @@ extern pthread_mutex_t mutex;
 
 #define SAMPLE_SIZE 16
 #define HZ 500
-#define SENSITIVITY 200
+#define SENSITIVITY 300
 
 float smooth_output(float *raw_output, size_t size) {
     // Smooth the sampled output using exponential average
@@ -69,7 +69,6 @@ void *out_thread(void *arg)
                 if(bar_len == 0 && prev_bar_len == 0) {
                     // Put the loop into sleep mode + reset sampling scope
                     n = 0;
-                    printf("Put into sleep mode. average: %f\n", average);
                     sleep_state = true;
                     continue;
                 }
@@ -106,7 +105,7 @@ void *out_thread(void *arg)
     pthread_exit(NULL);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     pthread_t thread_id[2];
     pthread_mutex_init(&mutex, NULL);
