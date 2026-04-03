@@ -14,5 +14,7 @@ void stream_param_changed(
     void *_data,
     uint32_t id,
     const struct spa_pod *param);
+
 void quit(void *userdata, int sig);
+
 #endif // PIPEWIRE_INPUT_H

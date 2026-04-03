@@ -88,11 +88,9 @@ void process(void *userdata)
 
     if(pthread_mutex_trylock(&mutex) != 0) {
         average = 0.0f;
-        for (j = 0; j < n_channels; j++)
-        {
+        for (j = 0; j < n_channels; j++) {
             for (n = j; n < n_samples; n += n_channels)
             {
-                // average = fmaxf(average, fabsf(samples[n]));
                 average += fabsf(samples[n]);
             }
         }
@@ -119,7 +117,7 @@ void stream_param_changed(
         return;
 
     spa_format_audio_raw_parse(p, &data->format.info.raw);
-    // fprintf(stdout, "Capturing audio at: channels: %d, rate: %d ", data->format.info.raw.channels, data->format.info.raw.rate);
+    fprintf(stdout, "Capturing audio at: channels: %d, rate: %d ", data->format.info.raw.channels, data->format.info.raw.rate);
 }
 void quit(void *userdata, int sig)
 {
