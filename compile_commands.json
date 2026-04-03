@@ -1,0 +1,44 @@
+[
+  {
+    "file": "src/main.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-g",
+      "-fsanitize=address",
+      "-I/usr/include/spa-0.2/",
+      "-I/usr/include/pipewire-0.3/",
+      "src/main.c",
+      "-o",
+      "build/audio-vis",
+      "-pthread"
+    ],
+    "directory": "/home/michal/build/led-dynamic-audio-vis",
+    "output": "build/audio-vis"
+  },
+  {
+    "file": "src/input/pipewire-input.c",
+    "arguments": [
+      "gcc",
+      "-Wall",
+      "-Wextra",
+      "-O0",
+      "-Wno-unused-variable",
+      "-Wno-unused-parameter",
+      "-g",
+      "-fsanitize=address",
+      "-I/usr/include/spa-0.2/",
+      "-I/usr/include/pipewire-0.3/",
+      "src/input/pipewire-input.c",
+      "-o",
+      "build/audio-vis",
+      "-pthread"
+    ],
+    "directory": "/home/michal/build/led-dynamic-audio-vis",
+    "output": "build/audio-vis"
+  }
+]

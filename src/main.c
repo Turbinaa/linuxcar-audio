@@ -1,14 +1,9 @@
 #include <pthread.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <math.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <spa/param/audio/format-utils.h>
-#include <pipewire/pipewire.h>
-#include <pipewire/impl.h>
+#include <time.h>
 #include "input/pipewire-input.h"
 #include "main.h"
 
@@ -16,19 +11,21 @@ extern float average;
 extern pthread_mutex_t mutex;
 
 #define SAMPLE_SIZE 16
-#define HZ 1000
+#define HZ 500
+#define SENSITIVITY 200
 
 float smooth_output(float *raw_output, size_t size) {
     // Smooth the sampled output using exponential average
 
     static float prev_smooth = 1.0f;
-    const float alpha = 0.01f;
+    const float alpha = 0.1f;
 
     if (size == 0) return 0.0f;
     float smooth_value = 0.0f;
     for(size_t i = 0; i < size; i++) {
         smooth_value += raw_output[i];
     }
+    // Remove weird artifacts
     smooth_value = alpha * prev_smooth + (1 - alpha) * smooth_value;
     prev_smooth = smooth_value;
     return smooth_value;
@@ -52,31 +49,59 @@ void *in_thread(void *arg) {
 void *out_thread(void *arg)
 {
     int n = 0;
-    u_int print_val = 0;
     float samples[SAMPLE_SIZE];
-
     float smooth_value;
     size_t bar_len;
+    size_t prev_bar_len = 1;
+    bool sleep_state = false;
 
     while(1)
     {
-        usleep((int)(1000000 / (HZ * SAMPLE_SIZE)));
+        if(!sleep_state) {
+            usleep((int)(1000000 / (HZ * SAMPLE_SIZE)));
+            if (n == SAMPLE_SIZE)
+            {
+                smooth_value = smooth_output(samples, SAMPLE_SIZE);
+                bar_len = (size_t)(smooth_value * SENSITIVITY);
+                print_bar(bar_len);
+                n = 0;
 
-        if(pthread_mutex_trylock(&mutex) != 0) {
-            continue;
+                if(bar_len == 0 && prev_bar_len == 0) {
+                    // Put the loop into sleep mode + reset sampling scope
+                    n = 0;
+                    printf("Put into sleep mode. average: %f\n", average);
+                    sleep_state = true;
+                    continue;
+                }
+                prev_bar_len = bar_len;
+            }
+
+            // Mutex scope
+            if(pthread_mutex_trylock(&mutex) != 0) {
+                continue;
+            }
+
+            samples[n] = average;
+            pthread_mutex_unlock(&mutex);
+            // End of mutex scope
+
+            n++; // Counter for sampling
+        } else {
+            // Periodically check if average is positive to revive the loop
+            if(pthread_mutex_trylock(&mutex) == 0) {
+                // Use smaller epsilon for more sensitivity
+                if (average > 1e-8) {
+                    pthread_mutex_unlock(&mutex);
+                    sleep_state = false;
+                } else {
+                    pthread_mutex_unlock(&mutex);
+                    usleep(250000); // 0.25s
+                }
+            } else {
+                usleep(10000);
+            }
         }
 
-        if (n == SAMPLE_SIZE)
-        {
-            smooth_value = smooth_output(samples, SAMPLE_SIZE);
-            bar_len = (size_t)(smooth_value * 1000);
-            print_bar(bar_len);
-            n = 0;
-        }
-
-        samples[n] = average;
-        pthread_mutex_unlock(&mutex);
-        n++;
     }
     pthread_exit(NULL);
 }

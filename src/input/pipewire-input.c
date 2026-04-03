@@ -1,12 +1,8 @@
 #include <stdio.h>
 #include <sys/types.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include <math.h>
-#include <spa/param/audio/format-utils.h>
-#include <pipewire/pipewire.h>
-#include <pipewire/impl.h>
 
 #include "pipewire-input.h"
 #include "../main.h"
@@ -86,7 +82,7 @@ void process(void *userdata)
     n_channels = data->format.info.raw.channels;
     n_samples = spa_buff->datas[0].chunk->size / sizeof(float);
 
-    if(pthread_mutex_trylock(&mutex) != 0) {
+    if(pthread_mutex_trylock(&mutex) == 0) {
         average = 0.0f;
         for (j = 0; j < n_channels; j++) {
             for (n = j; n < n_samples; n += n_channels)

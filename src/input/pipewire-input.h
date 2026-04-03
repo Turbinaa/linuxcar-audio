@@ -1,6 +1,10 @@
 #ifndef PIPEWIRE_INPUT_H
 #define PIPEWIRE_INPUT_H
 
+#include <spa/param/audio/format-utils.h>
+#include <pipewire/pipewire.h>
+#include <pipewire/impl.h>
+
 void process(void *userdata);
 void pw_input_main_loop();
 struct data
