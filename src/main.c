@@ -11,21 +11,22 @@ extern float average;
 extern pthread_mutex_t mutex;
 
 #define SAMPLE_SIZE 16
-#define HZ 500
-#define SENSITIVITY 300
+#define HZ 240
+#define SENSITIVITY 1000
 
 float smooth_output(float *raw_output, size_t size) {
     // Smooth the sampled output using exponential average
 
     static float prev_smooth = 1.0f;
-    const float alpha = 0.1f;
+    const float alpha = 0.01f;
 
     if (size == 0) return 0.0f;
     float smooth_value = 0.0f;
     for(size_t i = 0; i < size; i++) {
         smooth_value += raw_output[i];
     }
-    // Remove weird artifacts
+    smooth_value /= (float)size;
+
     smooth_value = alpha * prev_smooth + (1 - alpha) * smooth_value;
     prev_smooth = smooth_value;
     return smooth_value;
@@ -35,7 +36,6 @@ void print_bar(size_t bar_len) {
     if(bar_len > 128)
         bar_len = 128;
 
-    fflush(stdout);
     for(size_t i = 0; i < bar_len; i++) {
         putchar('#');
     }
@@ -63,7 +63,6 @@ void *out_thread(void *arg)
             {
                 smooth_value = smooth_output(samples, SAMPLE_SIZE);
                 bar_len = (size_t)(smooth_value * SENSITIVITY);
-                print_bar(bar_len);
                 n = 0;
 
                 if(bar_len == 0 && prev_bar_len == 0) {
@@ -73,10 +72,13 @@ void *out_thread(void *arg)
                     continue;
                 }
                 prev_bar_len = bar_len;
+                printf("%ld\n", bar_len);
+                fflush(stdout);
             }
 
             // Mutex scope
             if(pthread_mutex_trylock(&mutex) != 0) {
+                usleep(1000);
                 continue;
             }
 
@@ -97,7 +99,7 @@ void *out_thread(void *arg)
                     usleep(250000); // 0.25s
                 }
             } else {
-                usleep(10000);
+                usleep(1000);
             }
         }
 

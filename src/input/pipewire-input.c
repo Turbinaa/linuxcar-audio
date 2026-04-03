@@ -93,6 +93,8 @@ void process(void *userdata)
         average /= n_samples;
         average /= n_channels;
         pthread_mutex_unlock(&mutex);
+    } else {
+        usleep(1000);
     }
     pw_stream_queue_buffer(data->stream, pw_buff);
 }
