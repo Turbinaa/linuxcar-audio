@@ -11,14 +11,16 @@ extern float average;
 extern pthread_mutex_t mutex;
 
 #define SAMPLE_SIZE 16
-#define HZ 240
-#define SENSITIVITY 1000
+#define HZ 1000
+#define SENSITIVITY 10000
+
+
 
 float smooth_output(float *raw_output, size_t size) {
     // Smooth the sampled output using exponential average
 
     static float prev_smooth = 1.0f;
-    const float alpha = 0.01f;
+    const float alpha = 0.95f;
 
     if (size == 0) return 0.0f;
     float smooth_value = 0.0f;
@@ -73,7 +75,7 @@ void *out_thread(void *arg)
                 }
                 prev_bar_len = bar_len;
                 printf("%ld\n", bar_len);
-                fflush(stdout);
+                fflush_unlocked(stdout);
             }
 
             // Mutex scope
