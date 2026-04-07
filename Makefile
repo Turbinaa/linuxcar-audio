@@ -1,9 +1,9 @@
 PROJ = audio-vis
 
 CC = gcc
-CFLAGS = -Wall -Wextra -O3 -Wno-unused-variable -Wno-unused-parameter -g -fsanitize=address
+CFLAGS = -Wall -Wextra -O3 -Wno-unused-variable -Wno-unused-parameter -g
 INCLUDE = -I/usr/include/spa-0.2/ -I/usr/include/pipewire-0.3/
-LDFLAGS = -lpipewire-0.3 -lm -pthread
+LDFLAGS = -lpipewire-0.3 -lm -pthread -lzmq
 
 EXE = build/$(PROJ)
 

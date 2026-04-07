@@ -6,6 +6,7 @@
 #include <time.h>
 #include "input/pipewire-input.h"
 #include "main.h"
+#include "communication/publisher.h"
 
 extern float average;
 extern pthread_mutex_t mutex;
@@ -56,6 +57,7 @@ void *out_thread(void *arg)
     size_t bar_len;
     size_t prev_bar_len = 1;
     bool sleep_state = false;
+    PublisherState state = publisher_init();
 
     while(1)
     {
@@ -74,8 +76,7 @@ void *out_thread(void *arg)
                     continue;
                 }
                 prev_bar_len = bar_len;
-                printf("%ld\n", bar_len);
-                fflush_unlocked(stdout);
+                publisher_send_avg_int(&state, (int)bar_len);
             }
 
             // Mutex scope
@@ -106,6 +107,7 @@ void *out_thread(void *arg)
         }
 
     }
+    publisher_cleanup(&state);
     pthread_exit(NULL);
 }
 
