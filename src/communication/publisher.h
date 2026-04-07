@@ -1,5 +1,5 @@
+#ifndef PUBLISHER_H
 #define PUBLISHER_H
-#ifdef PUBLISHER_H
 
 #include <zmq.h>
 

@@ -19,31 +19,19 @@ extern pthread_mutex_t mutex;
 
 float smooth_output(float *raw_output, size_t size) {
     // Smooth the sampled output using exponential average
-
     static float prev_smooth = 1.0f;
     const float alpha = 0.95f;
 
-    if (size == 0) return 0.0f;
+    if (size == 0) return prev_smooth;
+
     float smooth_value = 0.0f;
     for(size_t i = 0; i < size; i++) {
-        smooth_value += raw_output[i];
+        prev_smooth = alpha * prev_smooth + (1 - alpha) * raw_output[i];
     }
-    smooth_value /= (float)size;
 
-    smooth_value = alpha * prev_smooth + (1 - alpha) * smooth_value;
-    prev_smooth = smooth_value;
-    return smooth_value;
+    return prev_smooth;
 }
 
-void print_bar(size_t bar_len) {
-    if(bar_len > 128)
-        bar_len = 128;
-
-    for(size_t i = 0; i < bar_len; i++) {
-        putchar('#');
-    }
-    putchar('\n');
-}
 void *in_thread(void *arg) {
     pw_input_main_loop();
     pthread_exit(NULL);

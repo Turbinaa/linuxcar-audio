@@ -14,8 +14,10 @@ PublisherState publisher_init(void) {
     PublisherState state = {0};
     state.ctx = _ctx;
     state.pub = _pub;
-    unlink("/run/cardash/bus.sock");
-    zmq_bind(state.pub, "ipc:///run/cardash/bus.sock");
+    if(zmq_bind(state.pub, "ipc:///run/cardash/bus.sock") != 0) {
+        unlink("/run/cardash/bus.sock");
+        zmq_bind(state.pub, "ipc:///run/cardash/bus.sock"); // Retry
+    }
     return state;
 }
 
