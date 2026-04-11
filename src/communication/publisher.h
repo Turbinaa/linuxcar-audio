@@ -9,7 +9,7 @@ typedef struct PublisherState {
 } PublisherState;
 
 void publisher_send_avg_int(PublisherState *state, int avg);
-PublisherState publisher_init(void);
+PublisherState publisher_init(const char *socket_path);
 
 void publisher_cleanup(PublisherState *state);
 #endif

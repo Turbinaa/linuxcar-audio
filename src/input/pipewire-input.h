@@ -1,24 +1,20 @@
 #ifndef PIPEWIRE_INPUT_H
 #define PIPEWIRE_INPUT_H
 
-#include <spa/param/audio/format-utils.h>
-#include <pipewire/pipewire.h>
 #include <pipewire/impl.h>
+#include <pipewire/pipewire.h>
+#include <spa/param/audio/format-utils.h>
 
 void process(void *userdata);
 void pw_input_main_loop();
-struct data
-{
+struct data {
     struct pw_main_loop *loop;
     struct pw_stream *stream;
     struct spa_audio_info format;
 };
 
-void stream_param_changed(
-    void *_data,
-    uint32_t id,
-    const struct spa_pod *param);
+void stream_param_changed(void *_data, uint32_t id, const struct spa_pod *param);
 
 void quit(void *userdata, int sig);
 
-#endif // PIPEWIRE_INPUT_H
+#endif  // PIPEWIRE_INPUT_H

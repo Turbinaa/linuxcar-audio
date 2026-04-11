@@ -1,4 +1,7 @@
 #include "publisher.h"
+
+#include <assert.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -8,15 +11,17 @@ void publisher_send_avg_int(PublisherState *state, int avg) {
     zmq_send(state->pub, msg, strlen(msg), 0);
 }
 
-PublisherState publisher_init(void) {
+PublisherState publisher_init(const char *socket_path) {
     void *_ctx = zmq_ctx_new();
     void *_pub = zmq_socket(_ctx, ZMQ_PUB);
     PublisherState state = {0};
     state.ctx = _ctx;
     state.pub = _pub;
-    if(zmq_bind(state.pub, "ipc:///run/cardash/bus.sock") != 0) {
-        unlink("/run/cardash/bus.sock");
-        zmq_bind(state.pub, "ipc:///run/cardash/bus.sock"); // Retry
+    char full_path[256];
+    snprintf(full_path, sizeof(full_path), "ipc://%s", socket_path);
+    if (zmq_bind(state.pub, full_path) != 0) {
+        unlink(socket_path);
+        assert(zmq_bind(state.pub, full_path) == 0);
     }
     return state;
 }
