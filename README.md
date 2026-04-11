@@ -18,10 +18,10 @@ libzmq3-dev
 Run `make` with provided Makefile
 
 ## Usage
--hz   sample rate                (default: 1000)
--ss   sample size                (default: 16)
--sn   sensitivity                (default: 10000)
---socket path-to-socket          (default: /run/cardash/bus.sock)
+-hz   sample rate                (default: 1000) \
+-ss   sample size                (default: 16)   \
+-sn   sensitivity                (default: 10000) \
+--socket path-to-socket          (default: /run/cardash/bus.sock) \
 
 ## Architecture
 
