@@ -29,7 +29,7 @@ PipeWire sink monitor \
        ↓ \
 process() [RT thread] \
        ↓ mutex \
-out_thread — EMA smoothing \
+out_thread -> EMA smoothing \
        ↓ \
 ZeroMQ PUB \
 ipc:///run/cardash/bus.sock \
