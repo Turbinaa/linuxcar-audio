@@ -2,11 +2,9 @@
 
 Provides LED audio-based illumination for linuxcar project
 
-
 ## Overview
 
 Captures audio from a PipeWire sink monitor, catches amplitude and smoothens it out, published over ZeroMQ IPC. Designed for linuxcar project.
-
 
 ## Dependencies
 
@@ -17,7 +15,7 @@ libzmq3-dev
 
 ## Building
 
-Run make with provided Makefile
+Run `make` with provided Makefile
 
 ## Usage
 -hz   sample rate                (default: 1000)
