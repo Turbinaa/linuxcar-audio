@@ -18,19 +18,19 @@ libzmq3-dev
 Run `make` with provided Makefile
 
 ## Usage
--hz   sample rate                (default: 1000)
--ss   sample size                (default: 16)
--sn   sensitivity                (default: 10000)
+-hz   sample rate                (default: 1000) \
+-ss   sample size                (default: 16)   \
+-sn   sensitivity                (default: 10000) \
 --socket path-to-socket          (default: /run/cardash/bus.sock)
 
 ## Architecture
 
-PipeWire sink monitor
-       ↓
-process() [RT thread]
-       ↓ mutex
-out_thread — EMA smoothing
-       ↓
-ZeroMQ PUB
-ipc:///run/cardash/bus.sock
+PipeWire sink monitor \
+       ↓ \
+process() [RT thread] \
+       ↓ mutex \
+out_thread -> EMA smoothing \
+       ↓ \
+ZeroMQ PUB \
+ipc:///run/cardash/bus.sock \
 topic: audio.avg_int <0-1000>
