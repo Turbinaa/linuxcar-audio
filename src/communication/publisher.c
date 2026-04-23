@@ -23,6 +23,7 @@ PublisherState publisher_init(const char *socket_path) {
         unlink(socket_path);
         assert(zmq_bind(state.pub, full_path) == 0);
     }
+    printf("%s\n", full_path);
     return state;
 }
 

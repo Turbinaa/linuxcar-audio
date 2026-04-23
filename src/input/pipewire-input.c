@@ -1,6 +1,7 @@
 #include "pipewire-input.h"
 
 #include <math.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -10,12 +11,16 @@
 
 float average;
 pthread_mutex_t mutex;
+
+
 static const struct pw_stream_events stream_e = {
     PW_VERSION_STREAM_EVENTS,
     .param_changed = stream_param_changed,
     .process = process,
 
 };
+
+
 void pw_input_main_loop() {
     struct data data = {
         0,
@@ -28,6 +33,7 @@ void pw_input_main_loop() {
     data.loop = pw_main_loop_new(NULL);
     pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGINT, quit, &data);
     pw_loop_add_signal(pw_main_loop_get_loop(data.loop), SIGTERM, quit, &data);
+
     props = pw_properties_new(PW_KEY_MEDIA_TYPE, "Audio", PW_KEY_CONFIG_NAME, "client-rt.conf",
                               PW_KEY_MEDIA_CATEGORY, "Capture", PW_KEY_MEDIA_ROLE, "Music", NULL);
     pw_properties_set(props, PW_KEY_STREAM_CAPTURE_SINK, "true");
@@ -40,6 +46,7 @@ void pw_input_main_loop() {
         data.stream, PW_DIRECTION_INPUT, PW_ID_ANY,
         PW_STREAM_FLAG_AUTOCONNECT | PW_STREAM_FLAG_MAP_BUFFERS | PW_STREAM_FLAG_RT_PROCESS, params,
         1);
+
 
     pw_main_loop_run(data.loop);
 
@@ -76,17 +83,22 @@ void process(void *userdata) {
 
     n_samples = spa_buff->datas[0].chunk->size / sizeof(float);
 
-    if (pthread_mutex_trylock(&mutex) == 0) {
-        average = 0.0f;
-        for (j = 0; j < n_channels; j++) {
-            for (n = j; n < n_samples; n += n_channels) {
-                average += fabsf(samples[n]);
-            }
+    // define variable for non-blocking calculation
+    float _average = 0.0f;
+
+    for (j = 0; j < n_channels; j++) {
+        for (n = j; n < n_samples; n += n_channels) {
+            _average += fabsf(samples[n]);
         }
-        average /= n_samples;
-        average /= n_channels;
+    }
+    _average /= n_samples;
+    _average /= n_channels;
+
+    if(pthread_mutex_trylock(&mutex)) {
+        average = _average;
         pthread_mutex_unlock(&mutex);
     }
+
     pw_stream_queue_buffer(data->stream, pw_buff);
 }
 

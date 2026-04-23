@@ -14,6 +14,7 @@
 
 extern float average;
 extern pthread_mutex_t mutex;
+
 volatile sig_atomic_t running = 1;
 
 // Default values
@@ -57,7 +58,6 @@ void *out_thread(void *arg) {
             if (n == sample_size) {
                 float smooth_value = smooth_output(samples, sample_size);
                 int bar_len = (int)(smooth_value * sensitivity);
-
                 // Hard limit
                 if(bar_len > 1000) bar_len = 1000;
 
