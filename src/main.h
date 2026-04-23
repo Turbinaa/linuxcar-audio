@@ -8,6 +8,4 @@ extern volatile sig_atomic_t running;
 
 float smooth_output(const float *raw_output, size_t size);
 
-void print_bar(size_t bar_len);
-
 #endif

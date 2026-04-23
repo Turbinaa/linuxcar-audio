@@ -94,7 +94,7 @@ void process(void *userdata) {
     _average /= n_samples;
     _average /= n_channels;
 
-    if(pthread_mutex_trylock(&mutex)) {
+    if(pthread_mutex_trylock(&mutex) == 0) {
         average = _average;
         pthread_mutex_unlock(&mutex);
     }
@@ -116,6 +116,8 @@ void stream_param_changed(void *_data, uint32_t id, const struct spa_pod *p) {
     spa_format_audio_raw_parse(p, &data->format.info.raw);
     fprintf(stdout, "Capturing audio at: channels: %d, rate: %d ", data->format.info.raw.channels,
             data->format.info.raw.rate);
+
+    fflush(stdout);
 }
 void quit(void *userdata, int sig) {
     const struct data *data = userdata;

@@ -9,11 +9,14 @@ EXE = build/$(PROJ)
 
 all: $(EXE)
 
-$(EXE): src/*.c src/*/*.c
+$(EXE): src/*.c src/*/*.c | build
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@ $(LDFLAGS)
 
 clean:
 	rm $(EXE)
+
+build:
+	mkdir -p build
 
 .PHONY: all clean
 
